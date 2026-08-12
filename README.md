@@ -1,20 +1,25 @@
 <div align="center">
 
+<img src="./public/logo.png" alt="Meridian Logo" width="120" />
+
 # Meridian
 
 **Plan Smart. Save More. Explore Europe.**
 
+🌐 **Live Demo:** [https://meridian-alpha-gray.vercel.app/](https://meridian-alpha-gray.vercel.app/)
+
 A single login. Three modules. One honest answer: *based on what I've actually saved, which trip can I afford — and when?*
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
-[![Next.js](https://img.shields.io/badge/Next.js-15-black)](https://nextjs.org/)
-[![React](https://img.shields.io/badge/React-19-61DAFB)](https://react.dev/)
-[![PWA](https://img.shields.io/badge/PWA-installable-5A0FC8)](#-pwa--offline)
-[![Status](https://img.shields.io/badge/status-in%20development-orange)]()
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-Vercel-0FB6A6?style=flat-square&logo=vercel)](https://meridian-alpha-gray.vercel.app/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](./LICENSE)
+[![Next.js](https://img.shields.io/badge/Next.js-15-black?style=flat-square)](https://nextjs.org/)
+[![React](https://img.shields.io/badge/React-19-61DAFB?style=flat-square)](https://react.dev/)
+[![PWA](https://img.shields.io/badge/PWA-installable-5A0FC8?style=flat-square)](#-pwa--offline)
 
 [Overview](#-overview) · [Modules](#-modules) · [Tech Stack](#%EF%B8%8F-tech-stack) · [Design System](#-design-system) · [Getting Started](#-getting-started) · [Project Structure](#-project-structure) · [Roadmap](#-roadmap) · [License](#-license)
 
 </div>
+
 
 ---
 
