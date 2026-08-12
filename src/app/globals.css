@@ -1,73 +1,67 @@
 @import "tailwindcss";
+@config "../../tailwind.config.js";
 
 @layer base {
+  /* ===== LIGHT — "Daylight Chart" ===== */
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --surface-0: #FAF8F4;
+    --surface-1: #FFFFFF;
+    --surface-2: #F1EEE6;
+    --ink-900: #1B1B22;
+    --ink-600: #4C4C58;
+    --ink-400: #8A8A96;
+    --line: #E4E0D6;
 
+    --meridian-gradient: linear-gradient(90deg, #4C5FD7 0%, #C9A24B 50%, #0FB6A6 100%);
+
+    /* repoint shadcn tokens to new palette (HSL, keep var names) */
+    --background: 40 33% 96.5%;      /* #FAF8F4 */
+    --foreground: 240 13% 11%;       /* #1B1B22 */
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 240 13% 11%;
+    --primary: 234 55% 58%;          /* #4C5FD7 — shell/TaskForge indigo */
+    --primary-foreground: 0 0% 100%;
+    --muted: 40 24% 91%;             /* #F1EEE6 */
+    --muted-foreground: 240 8% 33%;  /* #4C4C58 */
+    --border: 40 25% 87%;            /* #E4E0D6 */
+    --input: 40 25% 87%;
+    --ring: 234 55% 58%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --radius-sm: 10px;
+    --radius-md: 14px;
+    --radius-lg: 20px;
+    --radius-full: 999px;
+    --radius: 0.875rem;
 
-    --primary: 221.2 83.2% 53.3%;
-    --primary-foreground: 210 40% 98%;
-
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 221.2 83.2% 53.3%;
-
-    --radius: 0.5rem;
-
-    /* LedgerWise module tokens */
+    /* Existing LedgerWise module tokens */
     --color-teal-primary: 15 118 110;
     --color-teal-dark: 13 148 136;
     --color-coral-accent: 249 112 102;
   }
 
+  /* ===== DARK — "Night Chart" ===== */
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
+    --surface-0: #0B0E14;
+    --surface-1: #12161F;
+    --surface-2: #1A2030;
+    --ink-900: #F3F2ED;
+    --ink-600: #A9ADBB;
+    --ink-400: #5C6274;
+    --line: #232A3B;
 
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
+    --background: 220 26% 6%;        /* #0B0E14 */
+    --foreground: 48 20% 95%;        /* #F3F2ED */
+    --card: 222 23% 9%;              /* #12161F */
+    --card-foreground: 48 20% 95%;
+    --primary: 234 68% 68%;          /* brighter indigo for dark bg */
+    --primary-foreground: 220 26% 6%;
+    --muted: 222 24% 13%;            /* #1A2030 */
+    --muted-foreground: 228 12% 68%; /* #A9ADBB */
+    --border: 222 24% 17%;           /* #232A3B */
+    --input: 222 24% 17%;
+    --ring: 234 68% 68%;
 
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-
-    --primary: 217.2 91.2% 59.8%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 224.3 76.3% 48%;
-
-    /* LedgerWise dark tokens */
+    /* Existing LedgerWise dark tokens */
     --color-teal-primary: 45 212 191;
     --color-teal-dark: 20 184 166;
   }
@@ -78,8 +72,11 @@
     border-color: var(--border);
   }
   body {
-    background-color: hsl(var(--background));
-    color: hsl(var(--foreground));
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-family: var(--font-inter), -apple-system, "Segoe UI", Roboto, sans-serif;
+    background-color: var(--surface-0);
+    color: var(--ink-900);
   }
+  .font-display { font-family: var(--font-fraunces), Georgia, serif; }
+  .font-mono-data { font-family: var(--font-jetbrains-mono), monospace; font-variant-numeric: tabular-nums; }
 }
+

@@ -2,10 +2,12 @@
 
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
+import { motion, useReducedMotion } from 'framer-motion';
 import { Card, CardContent } from '@/shared/ui/Card';
 import { Button } from '@/shared/ui/Button';
 import { Badge } from '@/shared/ui/Badge';
-import { Compass, Lock, Unlock, ShieldCheck, Check, Sparkles, Filter } from 'lucide-react';
+import { MeridianLine } from '@/shared/ui/MeridianLine';
+import { Compass, Lock, Unlock, ShieldCheck, Sparkles, Filter } from 'lucide-react';
 import { europeDestinations } from '@/data/europeDestinations';
 import { checkTravelEligibility, recalculateVerifiedSavings } from '@/shared/services/travelEligibilityService';
 import { formatINR, formatEUR } from '@/shared/services/currencyService';
@@ -17,6 +19,7 @@ export default function EuropeExplorerPage() {
   const [tierFilter, setTierFilter] = useState('all');
   const [verifiedSavings, setVerifiedSavings] = useState(145000); // seed default from closed LedgerWise months
   const [walletBalance, setWalletBalance] = useState(85000);
+  const reduce = useReducedMotion();
 
   useEffect(() => {
     loadSavingsData();
@@ -62,7 +65,7 @@ export default function EuropeExplorerPage() {
   return (
     <div className="space-y-6">
       {/* Header Banner with Verified Financial Balance */}
-      <div className="p-6 rounded-2xl bg-gradient-to-br from-atlas-navy via-slate-900 to-slate-950 text-white space-y-4 shadow-xl border border-atlas-navy/50">
+      <div className="p-6 rounded-2xl bg-gradient-to-br from-atlas-navy via-slate-900 to-slate-950 text-white space-y-4 shadow-e3 border border-atlas-navy/50">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="space-y-1">
             <div className="flex items-center gap-2">
@@ -73,7 +76,7 @@ export default function EuropeExplorerPage() {
                 <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" /> Two-Number Money Model Active
               </span>
             </div>
-            <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight">
+            <h1 className="font-display text-2xl md:text-4xl font-extrabold tracking-tight">
               Europe Travel Explorer
             </h1>
             <p className="text-xs md:text-sm text-slate-300">
@@ -84,11 +87,11 @@ export default function EuropeExplorerPage() {
           <div className="flex flex-wrap items-center gap-3">
             <div className="p-3 rounded-xl bg-slate-900/90 border border-slate-800 text-right">
               <span className="text-[10px] text-slate-400 block uppercase font-medium">Verified Savings (LedgerWise)</span>
-              <span className="text-lg font-bold text-atlas-gold">{formatINR(verifiedSavings)}</span>
+              <span className="font-mono-data text-lg font-bold text-atlas-gold">{formatINR(verifiedSavings)}</span>
             </div>
             <div className="p-3 rounded-xl bg-slate-900/90 border border-slate-800 text-right">
               <span className="text-[10px] text-slate-400 block uppercase font-medium">Available Travel Wallet</span>
-              <span className="text-lg font-bold text-slate-200">{formatINR(walletBalance)}</span>
+              <span className="font-mono-data text-lg font-bold text-slate-200">{formatINR(walletBalance)}</span>
             </div>
           </div>
         </div>
@@ -103,7 +106,7 @@ export default function EuropeExplorerPage() {
                 onClick={() => setDurationMonths(months)}
                 className={`px-3 py-1 rounded-lg font-semibold transition-all ${
                   durationMonths === months
-                    ? 'bg-atlas-gold text-slate-950 shadow-xs'
+                    ? 'bg-atlas-gold text-slate-950 shadow-e1'
                     : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
                 }`}
               >
@@ -150,8 +153,8 @@ export default function EuropeExplorerPage() {
               key={dest.id}
               className={`overflow-hidden border transition-all duration-300 flex flex-col justify-between ${
                 isUnlocked
-                  ? 'border-atlas-gold/50 shadow-md hover:shadow-xl hover:-translate-y-1'
-                  : 'border-border opacity-90'
+                  ? 'border-atlas-gold/40 shadow-e1 hover:shadow-e2 hover:-translate-y-1'
+                  : 'border-line opacity-95'
               }`}
             >
               {/* Image Container with Lock Overlay */}
@@ -161,35 +164,41 @@ export default function EuropeExplorerPage() {
                   alt={dest.city}
                   fill
                   className={`object-cover transition-transform duration-500 group-hover:scale-105 ${
-                    !isUnlocked ? 'filter desaturate-50 contrast-75 brightness-75' : ''
+                    !isUnlocked ? 'filter grayscale-[60%] brightness-[0.55]' : ''
                   }`}
                   unoptimized
                 />
                 
-                {/* Locked overlay gradient */}
+                {/* Locked overlay scrim */}
                 {!isUnlocked && (
-                  <div className="absolute inset-0 bg-slate-950/60 backdrop-blur-[2px] flex flex-col items-center justify-center p-4 text-center text-white space-y-2">
-                    <div className="w-10 h-10 rounded-full bg-slate-900/90 border border-amber-500/40 flex items-center justify-center text-atlas-gold shadow-lg">
+                  <motion.div
+                    initial={{ opacity: 1 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={reduce ? { duration: 0.15 } : { duration: 0.4 }}
+                    className="absolute inset-0 bg-slate-950/60 backdrop-blur-[3px] flex flex-col items-center justify-center p-4 text-center text-white space-y-2"
+                  >
+                    <div className="w-10 h-10 rounded-full bg-slate-900/90 border border-amber-500/40 flex items-center justify-center text-atlas-gold shadow-e2">
                       <Lock className="w-5 h-5" />
                     </div>
                     <span className="text-xs font-bold tracking-wide uppercase text-amber-400">
                       Locked Destination
                     </span>
-                    <span className="text-[11px] text-slate-300">
+                    <span className="font-mono-data text-[11px] text-slate-300">
                       Save {formatINR(eligibility.remaining)} more in LedgerWise
                     </span>
-                  </div>
+                  </motion.div>
                 )}
 
                 {/* Top Badge Overlay */}
-                <div className="absolute top-3 left-3 right-3 flex items-center justify-between pointer-events-none">
-                  <span className="text-xl shadow-xs">{dest.flagEmoji}</span>
+                <div className="absolute top-3 left-3 right-3 flex items-center justify-between pointer-events-none z-10">
+                  <span className="text-xl shadow-e1">{dest.flagEmoji}</span>
                   {isUnlocked ? (
-                    <Badge variant="success" className="gap-1 shadow-md bg-emerald-500 text-white font-bold">
+                    <Badge variant="success" className="gap-1 shadow-e1 bg-emerald-500 text-white font-bold">
                       <Unlock className="w-3 h-3" /> Unlocked
                     </Badge>
                   ) : (
-                    <Badge variant="secondary" className="bg-slate-900/80 text-amber-400 border border-amber-400/30">
+                    <Badge variant="secondary" className="bg-slate-900/80 text-amber-400 border border-amber-400/30 font-mono-data">
                       Requires {formatINR(dest.minimumSavingsINR)}
                     </Badge>
                   )}
@@ -200,36 +209,29 @@ export default function EuropeExplorerPage() {
               <CardContent className="p-4 space-y-3 flex-1 flex flex-col justify-between">
                 <div>
                   <div className="flex items-center justify-between">
-                    <h3 className="font-bold text-lg leading-tight">{dest.city}</h3>
-                    <span className="text-xs text-muted-foreground">{dest.country}</span>
+                    <h3 className="font-display font-bold text-lg leading-tight text-ink-900">{dest.city}</h3>
+                    <span className="text-xs text-ink-600">{dest.country}</span>
                   </div>
-                  <p className="text-[11px] text-muted-foreground mt-1">
-                    Est. Daily Cost: <span className="font-semibold text-foreground">{formatEUR(dest.estimatedDailyCostEUR)}</span>
+                  <p className="text-[11px] text-ink-600 mt-1">
+                    Est. Daily Cost: <span className="font-mono-data font-semibold text-ink-900">{formatEUR(dest.estimatedDailyCostEUR)}</span>
                   </p>
                 </div>
 
-                {/* Progress Bar for Locked / Savings */}
-                <div className="space-y-1.5 pt-2 border-t">
+                {/* Meridian Line Progress Bar for Locked / Savings */}
+                <div className="space-y-1.5 pt-2 border-t border-line">
                   <div className="flex justify-between text-[11px] font-medium">
-                    <span className="text-muted-foreground">Savings Progress</span>
-                    <span className={isUnlocked ? 'text-emerald-600 dark:text-emerald-400 font-bold' : 'text-amber-600'}>
+                    <span className="text-ink-600">Savings Progress</span>
+                    <span className={`font-mono-data ${isUnlocked ? 'text-emerald-600 dark:text-emerald-400 font-bold' : 'text-amber-600 font-semibold'}`}>
                       {eligibility.percentage}%
                     </span>
                   </div>
-                  <div className="w-full h-2 rounded-full bg-muted overflow-hidden">
-                    <div
-                      className={`h-full transition-all duration-500 ${
-                        isUnlocked ? 'bg-emerald-500' : 'bg-atlas-gold'
-                      }`}
-                      style={{ width: `${eligibility.percentage}%` }}
-                    />
-                  </div>
+                  <MeridianLine value={eligibility.percentage} height={5} />
                 </div>
 
                 {/* Budget for Selected Duration */}
-                <div className="p-2.5 rounded-lg bg-muted/40 text-xs flex justify-between items-center">
-                  <span className="text-muted-foreground">{durationMonths}M Est. Budget:</span>
-                  <span className="font-bold text-foreground">{formatINR(currentBudget)}</span>
+                <div className="p-2.5 rounded-xl bg-surface-2 text-xs flex justify-between items-center">
+                  <span className="text-ink-600">{durationMonths}M Est. Budget:</span>
+                  <span className="font-mono-data font-bold text-ink-900">{formatINR(currentBudget)}</span>
                 </div>
 
                 {/* CTA */}
@@ -245,7 +247,7 @@ export default function EuropeExplorerPage() {
                   <Button
                     variant="outline"
                     disabled
-                    className="w-full text-xs text-muted-foreground cursor-not-allowed mt-2"
+                    className="w-full text-xs text-ink-400 cursor-not-allowed mt-2 font-mono-data"
                   >
                     Locked ({formatINR(eligibility.remaining)} Left)
                   </Button>
@@ -258,3 +260,4 @@ export default function EuropeExplorerPage() {
     </div>
   );
 }
+

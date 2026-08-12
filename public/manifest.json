@@ -1,0 +1,24 @@
+{
+  "name": "Meridian",
+  "short_name": "Meridian",
+  "description": "Plan Smart. Save More. Explore Europe.",
+  "start_url": "/dashboard",
+  "display": "standalone",
+  "background_color": "#FAF8F4",
+  "theme_color": "#FAF8F4",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
+

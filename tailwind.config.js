@@ -17,6 +17,16 @@ module.exports = {
         accent: { DEFAULT: 'hsl(var(--accent))', foreground: 'hsl(var(--accent-foreground))' },
         popover: { DEFAULT: 'hsl(var(--popover))', foreground: 'hsl(var(--popover-foreground))' },
         card: { DEFAULT: 'hsl(var(--card))', foreground: 'hsl(var(--card-foreground))' },
+        surface: {
+          0: 'var(--surface-0)',
+          1: 'var(--surface-1)',
+          2: 'var(--surface-2)',
+        },
+        ink: {
+          900: 'var(--ink-900)',
+          600: 'var(--ink-600)',
+          400: 'var(--ink-400)',
+        },
         // LedgerWise module tokens
         teal: { DEFAULT: 'rgb(var(--color-teal-primary) / <alpha-value>)', dark: 'rgb(var(--color-teal-dark) / <alpha-value>)' },
         coral: { DEFAULT: 'rgb(var(--color-coral-accent) / <alpha-value>)' },
@@ -29,14 +39,26 @@ module.exports = {
       },
       fontFamily: {
         heading: ['Poppins', 'sans-serif'], // scoped to /ledgerwise/*
-        body: ['Inter', 'sans-serif'],
+        display: ['var(--font-fraunces)', 'Georgia', 'serif'],
+        mono: ['var(--font-jetbrains-mono)', 'monospace'],
+        sans: ['var(--font-inter)', '-apple-system', 'Segoe UI', 'Roboto', 'sans-serif'],
       },
       borderRadius: {
-        lg: 'var(--radius)',
-        md: 'calc(var(--radius) - 2px)',
-        sm: 'calc(var(--radius) - 4px)',
+        sm: 'var(--radius-sm)',
+        md: 'var(--radius-md)',
+        lg: 'var(--radius-lg)',
+        full: 'var(--radius-full)',
+      },
+      backgroundImage: {
+        meridian: 'var(--meridian-gradient)',
+      },
+      boxShadow: {
+        e1: '0 1px 2px rgba(0,0,0,.06)',
+        e2: '0 6px 20px -6px rgba(0,0,0,.18)',
+        e3: '0 8px 30px -12px rgba(0,0,0,.25)',
       },
     },
   },
   plugins: [require('tailwindcss-animate')],
 };
+

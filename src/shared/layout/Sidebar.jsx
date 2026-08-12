@@ -1,7 +1,9 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
+import { motion } from 'framer-motion';
 import {
   CheckSquare,
   FolderKanban,
@@ -19,10 +21,9 @@ import {
   Receipt,
   User,
   Settings,
-  Globe,
-  Sparkles,
 } from 'lucide-react';
 import { ModuleSwitcher } from './ModuleSwitcher';
+import { ThemeToggle } from '@/shared/ui/ThemeToggle';
 import { cn } from '@/shared/lib/utils';
 
 export function Sidebar() {
@@ -75,22 +76,30 @@ export function Sidebar() {
   const navSections = getNavSections();
 
   return (
-    <aside className="w-64 border-r bg-card/60 backdrop-blur-md flex flex-col h-screen sticky top-0 shrink-0 select-none">
+    <aside className="relative w-64 border-r border-line bg-surface-1 text-ink-900 flex flex-col h-screen sticky top-0 shrink-0 select-none">
+      {/* 2px Meridian Line Rail down sidebar edge */}
+      <div className="absolute top-0 bottom-0 left-0 w-[2px] bg-meridian opacity-80" />
+
       {/* Brand Header */}
-      <div className="p-4 border-b flex items-center justify-between">
+      <div className="p-4 border-b border-line flex items-center justify-between">
         <Link href="/dashboard" className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg bg-atlas-navy text-atlas-gold flex items-center justify-center font-bold text-lg shadow-sm">
-            M
-          </div>
+          <Image
+            src="/logo.png"
+            alt="Meridian Logo"
+            width={32}
+            height={32}
+            className="w-8 h-8 object-contain shrink-0"
+          />
           <div>
-            <h1 className="font-bold text-base leading-tight tracking-tight">Meridian</h1>
-            <p className="text-[10px] text-muted-foreground">Plan. Save. Explore.</p>
+            <h1 className="font-display font-bold text-base leading-tight tracking-tight text-ink-900">Meridian</h1>
+            <p className="text-[10px] text-ink-600">Plan. Save. Explore.</p>
           </div>
         </Link>
-        <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-atlas-gold/15 text-amber-700 dark:text-atlas-gold border border-atlas-gold/20">
-          v1.0
+        <span className="text-[10px] font-mono-data font-semibold px-2 py-0.5 rounded-full bg-atlas-gold/15 text-amber-700 dark:text-atlas-gold border border-atlas-gold/20">
+          v2.0
         </span>
       </div>
+
 
       {/* Navigation Body */}
       <div className="flex-1 overflow-y-auto p-3 space-y-4">
@@ -98,7 +107,7 @@ export function Sidebar() {
 
         {navSections.map((section, idx) => (
           <div key={idx} className="space-y-1">
-            <div className="px-2 py-1 text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
+            <div className="px-2 py-1 text-[11px] font-bold text-ink-600 uppercase tracking-wider">
               {section.title}
             </div>
             {section.items.map((item) => {
@@ -109,12 +118,20 @@ export function Sidebar() {
                   key={item.href}
                   href={item.href}
                   className={cn(
-                    'flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition-colors',
+                    'relative flex items-center gap-2.5 px-3 py-2 rounded-md text-xs font-medium transition-colors z-10',
                     isActive
-                      ? 'bg-primary text-primary-foreground font-semibold shadow-xs'
-                      : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+                      ? 'text-primary font-semibold'
+                      : 'text-ink-600 hover:text-ink-900 hover:bg-surface-2'
                   )}
                 >
+                  {isActive && (
+                    <motion.span
+                      layoutId="sidebar-nav-indicator"
+                      className="absolute inset-0 rounded-md -z-10"
+                      style={{ background: 'var(--meridian-gradient)', opacity: 0.16, filter: 'blur(4px)' }}
+                      transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+                    />
+                  )}
                   <Icon className="w-4 h-4 shrink-0" />
                   <span>{item.name}</span>
                 </Link>
@@ -124,33 +141,56 @@ export function Sidebar() {
         ))}
       </div>
 
-      {/* Footer Profile & Settings */}
-      <div className="p-3 border-t space-y-1">
-        <Link
-          href="/profile"
-          className={cn(
-            'flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition-colors',
-            pathname === '/profile'
-              ? 'bg-primary text-primary-foreground font-semibold'
-              : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
-          )}
-        >
-          <User className="w-4 h-4 shrink-0" />
-          <span>Profile</span>
-        </Link>
-        <Link
-          href="/settings"
-          className={cn(
-            'flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition-colors',
-            pathname === '/settings'
-              ? 'bg-primary text-primary-foreground font-semibold'
-              : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
-          )}
-        >
-          <Settings className="w-4 h-4 shrink-0" />
-          <span>Settings</span>
-        </Link>
+      {/* Footer Profile, Settings & Theme Toggle */}
+      <div className="p-3 border-t border-line space-y-2">
+        <div className="space-y-0.5">
+          <Link
+            href="/profile"
+            className={cn(
+              'relative flex items-center gap-2.5 px-3 py-2 rounded-md text-xs font-medium transition-colors z-10',
+              pathname === '/profile'
+                ? 'text-primary font-semibold'
+                : 'text-ink-600 hover:text-ink-900 hover:bg-surface-2'
+            )}
+          >
+            {pathname === '/profile' && (
+              <motion.span
+                layoutId="sidebar-nav-indicator"
+                className="absolute inset-0 rounded-md -z-10"
+                style={{ background: 'var(--meridian-gradient)', opacity: 0.16, filter: 'blur(4px)' }}
+                transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+              />
+            )}
+            <User className="w-4 h-4 shrink-0" />
+            <span>Profile</span>
+          </Link>
+          <Link
+            href="/settings"
+            className={cn(
+              'relative flex items-center gap-2.5 px-3 py-2 rounded-md text-xs font-medium transition-colors z-10',
+              pathname === '/settings'
+                ? 'text-primary font-semibold'
+                : 'text-ink-600 hover:text-ink-900 hover:bg-surface-2'
+            )}
+          >
+            {pathname === '/settings' && (
+              <motion.span
+                layoutId="sidebar-nav-indicator"
+                className="absolute inset-0 rounded-md -z-10"
+                style={{ background: 'var(--meridian-gradient)', opacity: 0.16, filter: 'blur(4px)' }}
+                transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+              />
+            )}
+            <Settings className="w-4 h-4 shrink-0" />
+            <span>Settings</span>
+          </Link>
+        </div>
+        <div className="pt-1 flex items-center justify-between">
+          <span className="text-[11px] text-ink-600 font-medium px-1">Theme</span>
+          <ThemeToggle />
+        </div>
       </div>
     </aside>
   );
 }
+
