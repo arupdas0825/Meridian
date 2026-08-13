@@ -1,4 +1,5 @@
 import { Inter, Fraunces, JetBrains_Mono } from 'next/font/google';
+import { SplashScreen } from '@/shared/ui/SplashScreen';
 import './globals.css';
 
 const inter = Inter({
@@ -52,10 +53,15 @@ export default function RootLayout({ children }) {
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
         <link rel="alternate icon" href="/favicon.ico" />
         <meta name="theme-color" content="#FAF8F4" />
+        <link
+          rel="apple-touch-startup-image"
+          href="/splash/apple-splash-1170-2532.png"
+          media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3)"
+        />
       </head>
 
       <body className="min-h-full flex flex-col font-sans bg-surface-0 text-ink-900" suppressHydrationWarning>
-        {children}
+        <SplashScreen>{children}</SplashScreen>
       </body>
     </html>
   );

@@ -14,7 +14,7 @@ export default function DashboardLayout({ children }) {
       </div>
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col min-w-0 pb-20 md:pb-0">
+      <div className="flex-1 flex flex-col min-w-0 pb-24 md:pb-0 pb-[calc(5rem+env(safe-area-inset-bottom,0px))]">
         <OfflineIndicator />
         <Breadcrumb />
         <main className="flex-1 p-4 md:p-6 overflow-y-auto max-w-7xl w-full mx-auto">
