@@ -1,79 +1,47 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/shared/ui/Card';
 import { Button } from '@/shared/ui/Button';
 import { Input } from '@/shared/ui/Input';
 import { Badge } from '@/shared/ui/Badge';
-import { CheckSquare, Plus, Trash2, Calendar, Tag, CheckCircle2, Circle } from 'lucide-react';
-import { listCollection, createDoc, updateDocById, deleteDocById } from '@/shared/lib/firestore';
+import { CheckSquare, Plus, Trash2, Calendar, CheckCircle2, Circle } from 'lucide-react';
+import { useTasks, addTask, toggleTask, deleteTask } from '@/modules/taskforge/hooks/useTasks';
 import { toast } from 'sonner';
 
 export default function TasksPage() {
-  const [tasks, setTasks] = useState([]);
+  const { tasks, loading } = useTasks();
   const [newTitle, setNewTitle] = useState('');
   const [priority, setPriority] = useState('medium');
   const [filter, setFilter] = useState('all');
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    loadTasks();
-  }, []);
-
-  const loadTasks = async () => {
-    setLoading(true);
-    const data = await listCollection('taskforge', 'tasks');
-    if (data.length === 0) {
-      // Seed default tasks if empty
-      const seedTasks = [
-        { title: 'Research flight options to Rome', priority: 'high', status: 'todo', due_date: '2026-08-20' },
-        { title: 'Update monthly savings in LedgerWise', priority: 'medium', status: 'completed', due_date: '2026-08-10' },
-        { title: 'Check passport validity for Europe trip', priority: 'high', status: 'todo', due_date: '2026-08-15' },
-      ];
-      for (const t of seedTasks) {
-        await createDoc('taskforge', 'tasks', t);
-      }
-      const seeded = await listCollection('taskforge', 'tasks');
-      setTasks(seeded);
-    } else {
-      setTasks(data);
-    }
-    setLoading(false);
-  };
 
   const handleAddTask = async (e) => {
     e.preventDefault();
     if (!newTitle.trim()) return;
 
-    const newTask = {
+    await addTask({
       title: newTitle,
       priority,
-      status: 'todo',
-      due_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-    };
-
-    const created = await createDoc('taskforge', 'tasks', newTask);
-    setTasks([created, ...tasks]);
+      dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    });
     setNewTitle('');
     toast.success('Task created successfully');
   };
 
   const handleToggleTask = async (task) => {
-    const nextStatus = task.status === 'completed' ? 'todo' : 'completed';
-    await updateDocById('taskforge', 'tasks', task.id, { status: nextStatus });
-    setTasks(tasks.map(t => t.id === task.id ? { ...t, status: nextStatus } : t));
-    toast.success(nextStatus === 'completed' ? 'Task completed' : 'Task restored');
+    const nextStatus = task.status === 'done' ? 'todo' : 'done';
+    await toggleTask(task.id, task.status);
+    toast.success(nextStatus === 'done' ? 'Task completed' : 'Task restored');
   };
 
   const handleDeleteTask = async (id) => {
-    await deleteDocById('taskforge', 'tasks', id);
-    setTasks(tasks.filter(t => t.id !== id));
+    await deleteTask(id);
     toast.success('Task deleted');
   };
 
   const filteredTasks = tasks.filter(t => {
-    if (filter === 'todo') return t.status !== 'completed';
-    if (filter === 'completed') return t.status === 'completed';
+    if (filter === 'todo') return t.status !== 'done';
+    if (filter === 'done') return t.status === 'done';
     return true;
   });
 
@@ -86,7 +54,7 @@ export default function TasksPage() {
         </div>
 
         <div className="flex items-center gap-2">
-          {['all', 'todo', 'completed'].map(f => (
+          {['all', 'todo', 'done'].map(f => (
             <Button
               key={f}
               variant={filter === f ? 'default' : 'outline'}
@@ -153,20 +121,20 @@ export default function TasksPage() {
                     onClick={() => handleToggleTask(task)}
                     className="text-muted-foreground hover:text-blue-600 transition-colors shrink-0"
                   >
-                    {task.status === 'completed' ? (
+                    {task.status === 'done' ? (
                       <CheckCircle2 className="w-5 h-5 text-emerald-500 fill-emerald-500/20" />
                     ) : (
                       <Circle className="w-5 h-5" />
                     )}
                   </button>
                   <div className="truncate">
-                    <p className={`text-sm font-medium ${task.status === 'completed' ? 'line-through text-muted-foreground' : 'text-foreground'}`}>
+                    <p className={`text-sm font-medium ${task.status === 'done' ? 'line-through text-muted-foreground' : 'text-foreground'}`}>
                       {task.title}
                     </p>
-                    {task.due_date && (
+                    {task.dueDate && (
                       <div className="flex items-center gap-1 text-[11px] text-muted-foreground mt-0.5">
                         <Calendar className="w-3 h-3" />
-                        <span>Due: {task.due_date}</span>
+                        <span>Due: {task.dueDate}</span>
                       </div>
                     )}
                   </div>

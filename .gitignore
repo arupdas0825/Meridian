@@ -19,6 +19,9 @@
 
 # production
 /build
+public/sw.js
+public/sw.js.map
+public/swe-worker*
 
 # misc
 .DS_Store

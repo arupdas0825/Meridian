@@ -1,45 +1,23 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/shared/ui/Card';
 import { Button } from '@/shared/ui/Button';
 import { Input } from '@/shared/ui/Input';
 import { Badge } from '@/shared/ui/Badge';
-import { Wallet, Plus, Trash2, ArrowDownLeft, DollarSign, Lock, CheckCircle } from 'lucide-react';
-import { listCollection, createDoc, deleteDocById } from '@/shared/lib/firestore';
+import { Plus, Trash2, ArrowDownLeft, CalendarCheck, X } from 'lucide-react';
+import { useExpenses, addExpense, deleteExpense, closeMonth, useMonthSummaries } from '@/modules/ledgerwise/hooks/useExpenses';
+import { formatCurrency } from '@/shared/services/currencyService';
 import { toast } from 'sonner';
 
 export default function ExpensesPage() {
-  const [expenses, setExpenses] = useState([]);
+  const { expenses, loading } = useExpenses();
+  const { summaries } = useMonthSummaries();
   const [amount, setAmount] = useState('');
   const [category, setCategory] = useState('Food & Dining');
   const [note, setNote] = useState('');
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    loadExpenses();
-  }, []);
-
-  const loadExpenses = async () => {
-    setLoading(true);
-    const data = await listCollection('ledgerwise', 'expenses');
-    if (data.length === 0) {
-      // Seed default expenses
-      const seeds = [
-        { category: 'Rent & Utilities', amount: 18000, note: 'August Rent', date: '2026-08-01' },
-        { category: 'Food & Dining', amount: 4500, note: 'Groceries & Dining', date: '2026-08-05' },
-        { category: 'Transport', amount: 1200, note: 'Metro Pass', date: '2026-08-07' },
-      ];
-      for (const s of seeds) {
-        await createDoc('ledgerwise', 'expenses', s);
-      }
-      const loaded = await listCollection('ledgerwise', 'expenses');
-      setExpenses(loaded);
-    } else {
-      setExpenses(data);
-    }
-    setLoading(false);
-  };
+  const [showCloseMonth, setShowCloseMonth] = useState(false);
+  const [closeMonthIncome, setCloseMonthIncome] = useState('');
 
   const handleAddExpense = async (e) => {
     e.preventDefault();
@@ -49,28 +27,38 @@ export default function ExpensesPage() {
       return;
     }
 
-    const newExpense = {
+    await addExpense({
       category,
       amount: parsedAmount,
       note: note || category,
-      date: new Date().toISOString().split('T')[0],
-      yyyyMm: new Date().toISOString().slice(0, 7),
-    };
-
-    const created = await createDoc('ledgerwise', 'expenses', newExpense);
-    setExpenses([created, ...expenses]);
+    });
     setAmount('');
     setNote('');
-    toast.success(`Logged expense of ₹${parsedAmount.toLocaleString()}`);
+    toast.success(`Logged expense of ${formatCurrency(parsedAmount)}`);
   };
 
   const handleDeleteExpense = async (id) => {
-    await deleteDocById('ledgerwise', 'expenses', id);
-    setExpenses(expenses.filter(e => e.id !== id));
+    await deleteExpense(id);
     toast.success('Expense deleted');
   };
 
-  const totalSpent = expenses.reduce((sum, e) => sum + (parseFloat(e.amount) || 0), 0);
+  const currentMonth = new Date().toISOString().slice(0, 7);
+  const isMonthClosed = summaries.some(s => s.yyyyMm === currentMonth && s.confirmed);
+  const totalSpent = expenses
+    .filter(e => e.month === currentMonth)
+    .reduce((sum, e) => sum + (parseFloat(e.amount) || 0), 0);
+
+  const handleCloseMonth = async () => {
+    const parsedIncome = parseFloat(closeMonthIncome);
+    if (isNaN(parsedIncome) || parsedIncome < 0) {
+      toast.error('Please enter a valid income amount');
+      return;
+    }
+    await closeMonth(currentMonth, parsedIncome);
+    setShowCloseMonth(false);
+    setCloseMonthIncome('');
+    toast.success(`Month ${currentMonth} closed. Verified savings updated.`);
+  };
 
   return (
     <div className="space-y-6">
@@ -82,33 +70,91 @@ export default function ExpensesPage() {
           <p className="text-xs text-muted-foreground">Rigorous personal finance and budget tracking</p>
         </div>
 
-        <div className="flex items-center gap-3 p-3 bg-teal-500/10 border border-teal-500/20 rounded-xl text-teal-800 dark:text-teal-200">
-          <div>
-            <span className="text-[10px] text-muted-foreground block uppercase font-medium">Total Month Expenses</span>
-            <span className="text-lg font-extrabold text-teal-600 dark:text-teal-400">₹{totalSpent.toLocaleString()}</span>
+        <div className="flex items-center gap-3">
+          <div className="p-3 bg-teal-500/10 border border-teal-500/20 rounded-xl text-teal-800 dark:text-teal-200 text-right">
+            <span className="text-[10px] text-muted-foreground block uppercase font-medium">This Month&apos;s Expenses</span>
+            <span className="text-lg font-extrabold text-teal-600 dark:text-teal-400 block">{formatCurrency(totalSpent)}</span>
           </div>
+
+          {!isMonthClosed && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowCloseMonth(true)}
+              className="gap-1.5 border-teal-500/30 text-teal-700 dark:text-teal-300 hover:bg-teal-500/10"
+            >
+              <CalendarCheck className="w-3.5 h-3.5" /> Close This Month
+            </Button>
+          )}
+          {isMonthClosed && (
+            <Badge variant="outline" className="text-emerald-600 border-emerald-500/30 gap-1">
+              <CalendarCheck className="w-3 h-3" /> {currentMonth} Closed
+            </Badge>
+          )}
         </div>
       </div>
+
+      {/* Close Month Dialog */}
+      {showCloseMonth && (
+        <Card className="border-teal-500/40 shadow-md bg-teal-500/5">
+          <CardContent className="pt-6 space-y-3">
+            <div className="flex items-center justify-between">
+              <h3 className="font-semibold text-sm">Close Month: {currentMonth}</h3>
+              <button onClick={() => setShowCloseMonth(false)} className="text-muted-foreground hover:text-foreground">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Enter your total income for this month in euros (€). Net savings (income − expenses) will be verified
+              and used to calculate your Atlas European travel eligibility.
+            </p>
+            <p className="text-xs text-muted-foreground">
+              Total expenses this month: <span className="font-mono-data font-bold text-foreground">{formatCurrency(totalSpent)}</span>
+            </p>
+            <div className="flex gap-3">
+              <Input
+                type="number"
+                placeholder="Monthly income (€)"
+                value={closeMonthIncome}
+                onChange={(e) => setCloseMonthIncome(e.target.value)}
+                className="flex-1"
+              />
+              <Button onClick={handleCloseMonth} className="bg-teal-600 hover:bg-teal-700 text-white gap-1.5">
+                <CalendarCheck className="w-4 h-4" /> Confirm &amp; Close
+              </Button>
+            </div>
+            {closeMonthIncome && parseFloat(closeMonthIncome) > 0 && (
+              <p className="text-xs text-muted-foreground">
+                Net savings: <span className="font-mono-data font-bold text-emerald-600">
+                  {formatCurrency(parseFloat(closeMonthIncome) - totalSpent)}
+                </span>
+              </p>
+            )}
+          </CardContent>
+        </Card>
+      )}
 
       {/* Add Expense Card */}
       <Card className="border-teal-500/20 shadow-sm">
         <CardContent className="pt-6">
           <form onSubmit={handleAddExpense} className="grid grid-cols-1 sm:grid-cols-4 gap-3">
-            <Input
-              type="number"
-              placeholder="Amount (₹)"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-              className="w-full"
-              required
-            />
+            <div className="relative">
+              <Input
+                type="number"
+                placeholder="Amount (€) e.g. 120"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                className="w-full"
+                required
+              />
+            </div>
             <select
               value={category}
               onChange={(e) => setCategory(e.target.value)}
               className="h-9 px-3 rounded-md border text-xs bg-background"
             >
-              <option value="Food & Dining">Food & Dining</option>
-              <option value="Rent & Utilities">Rent & Utilities</option>
+              <option value="Food & Dining">Food &amp; Dining</option>
+              <option value="Rent & Utilities">Rent &amp; Utilities</option>
               <option value="Transport">Transport</option>
               <option value="Shopping">Shopping</option>
               <option value="Entertainment">Entertainment</option>
@@ -140,8 +186,9 @@ export default function ExpensesPage() {
           {loading ? (
             <div className="py-8 text-center text-xs text-muted-foreground">Loading expenses...</div>
           ) : expenses.length === 0 ? (
-            <div className="py-12 text-center text-xs text-muted-foreground">
-              No Expenses — Your financial activity will appear here.
+            <div className="py-12 text-center text-xs text-muted-foreground space-y-1">
+              <p className="font-semibold text-foreground">No Expenses Yet</p>
+              <p>Your financial activity will appear here as you log expenses in euros (€).</p>
             </div>
           ) : (
             expenses.map(item => (
@@ -160,8 +207,8 @@ export default function ExpensesPage() {
                 </div>
 
                 <div className="flex items-center gap-3 shrink-0">
-                  <span className="font-bold text-sm text-destructive">
-                    -₹{parseFloat(item.amount).toLocaleString()}
+                  <span className="font-bold text-sm text-destructive block">
+                    -{formatCurrency(parseFloat(item.amount) || 0)}
                   </span>
                   <button
                     onClick={() => handleDeleteExpense(item.id)}

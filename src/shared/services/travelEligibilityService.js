@@ -1,14 +1,16 @@
 /**
  * Two numbers, never conflated:
- * - availableTravelFunds: freely editable wallet balance
- * - verifiedTravelSavings: derived ONLY from confirmed LedgerWise data, drives unlocks
+ * - availableTravelFunds: freely editable wallet balance (EUR)
+ * - verifiedTravelSavings: derived ONLY from confirmed LedgerWise data (EUR), drives unlocks
  */
 
 export function checkTravelEligibility(verifiedSavings, requiredSavings) {
-  const unlocked = verifiedSavings >= requiredSavings;
-  const remaining = Math.max(0, requiredSavings - verifiedSavings);
-  const percentage = requiredSavings > 0
-    ? Math.min(100, Math.round((verifiedSavings / requiredSavings) * 100))
+  const verified = verifiedSavings ?? 0;
+  const required = requiredSavings ?? 0;
+  const unlocked = verified >= required;
+  const remaining = Math.max(0, required - verified);
+  const percentage = required > 0
+    ? Math.min(100, Math.round((verified / required) * 100))
     : 100;
   return { unlocked, remaining, percentage };
 }
@@ -25,7 +27,7 @@ export function recalculateVerifiedSavings(closedMonthlySummaries = []) {
 }
 
 export function getDestinationStatus(destination, durationMonths, verifiedSavings) {
-  const required = destination.minimumSavingsINR;
+  const required = destination.minimumSavingsEUR ?? 0;
   const eligibility = checkTravelEligibility(verifiedSavings, required);
   return {
     ...eligibility,

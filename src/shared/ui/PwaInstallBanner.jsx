@@ -31,7 +31,7 @@ export function PwaInstallBanner() {
 
   return (
     <div
-      className="fixed bottom-20 md:bottom-6 right-4 left-4 md:left-auto md:max-w-md z-50 p-4 rounded-2xl
+      className="fixed bottom-24 md:bottom-6 right-4 left-4 md:left-auto md:max-w-md z-[60] p-4 rounded-2xl
                  border border-[color-mix(in_srgb,var(--ink-900)_12%,transparent)]
                  bg-[color-mix(in_srgb,var(--surface-1)_80%,transparent)]
                  backdrop-blur-[20px] backdrop-saturate-[1.6] shadow-e3

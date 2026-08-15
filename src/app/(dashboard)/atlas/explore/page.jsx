@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Image from 'next/image';
 import { motion, useReducedMotion } from 'framer-motion';
 import { Card, CardContent } from '@/shared/ui/Card';
@@ -9,30 +9,17 @@ import { Badge } from '@/shared/ui/Badge';
 import { MeridianLine } from '@/shared/ui/MeridianLine';
 import { Compass, Lock, Unlock, ShieldCheck, Sparkles, Filter } from 'lucide-react';
 import { europeDestinations } from '@/data/europeDestinations';
-import { checkTravelEligibility, recalculateVerifiedSavings } from '@/shared/services/travelEligibilityService';
-import { formatINR, formatEUR } from '@/shared/services/currencyService';
-import { listCollection, createDoc } from '@/shared/lib/firestore';
+import { checkTravelEligibility } from '@/shared/services/travelEligibilityService';
+import { formatCurrency } from '@/shared/services/currencyService';
+import { useTravelWallet } from '@/modules/atlas/hooks/useTravelWallet';
+import { createGoal } from '@/modules/atlas/hooks/useTravelWallet';
 import { toast } from 'sonner';
 
 export default function EuropeExplorerPage() {
   const [durationMonths, setDurationMonths] = useState(1);
   const [tierFilter, setTierFilter] = useState('all');
-  const [verifiedSavings, setVerifiedSavings] = useState(145000); // seed default from closed LedgerWise months
-  const [walletBalance, setWalletBalance] = useState(85000);
+  const { verifiedSavings, availableFunds } = useTravelWallet();
   const reduce = useReducedMotion();
-
-  useEffect(() => {
-    loadSavingsData();
-  }, []);
-
-  const loadSavingsData = async () => {
-    // Read closed LedgerWise monthly summaries only
-    const closedSummaries = await listCollection('ledgerwise', 'monthlySummaries');
-    if (closedSummaries.length > 0) {
-      const calculated = recalculateVerifiedSavings(closedSummaries);
-      setVerifiedSavings(calculated);
-    }
-  };
 
   const filteredDestinations = europeDestinations.filter((d) => {
     if (tierFilter === 'all') return true;
@@ -46,29 +33,24 @@ export default function EuropeExplorerPage() {
         ? destination.budgetByDuration.threeMonth
         : destination.budgetByDuration.sixMonth;
 
-    const newGoal = {
+    await createGoal({
       destinationId: destination.id,
       city: destination.city,
       country: destination.country,
       flagEmoji: destination.flagEmoji,
       durationMonths,
       targetAmount: budget,
-      currentAmount: walletBalance,
-      status: 'active',
-      createdAt: new Date().toISOString(),
-    };
-
-    await createDoc('atlas', 'goals', newGoal);
+    });
     toast.success(`Travel goal created for ${destination.city}, ${destination.country}!`);
   };
 
   return (
     <div className="space-y-6">
-      {/* Header Banner with Verified Financial Balance */}
+      {/* Header Banner with Verified Financial Balance in EUR */}
       <div className="p-6 rounded-2xl bg-gradient-to-br from-atlas-navy via-slate-900 to-slate-950 text-white space-y-4 shadow-e3 border border-atlas-navy/50">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="space-y-1">
-            <div className="flex items-center gap-2">
+          <div className="space-y-1.5">
+            <div className="flex items-center gap-2 flex-wrap">
               <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-atlas-gold text-slate-950">
                 Atlas Travel Module
               </span>
@@ -87,11 +69,15 @@ export default function EuropeExplorerPage() {
           <div className="flex flex-wrap items-center gap-3">
             <div className="p-3 rounded-xl bg-slate-900/90 border border-slate-800 text-right">
               <span className="text-[10px] text-slate-400 block uppercase font-medium">Verified Savings (LedgerWise)</span>
-              <span className="font-mono-data text-lg font-bold text-atlas-gold">{formatINR(verifiedSavings)}</span>
+              <span className="font-mono-data text-lg font-bold text-atlas-gold block">
+                {formatCurrency(verifiedSavings)}
+              </span>
             </div>
             <div className="p-3 rounded-xl bg-slate-900/90 border border-slate-800 text-right">
               <span className="text-[10px] text-slate-400 block uppercase font-medium">Available Travel Wallet</span>
-              <span className="font-mono-data text-lg font-bold text-slate-200">{formatINR(walletBalance)}</span>
+              <span className="font-mono-data text-lg font-bold text-slate-200 block">
+                {formatCurrency(availableFunds)}
+              </span>
             </div>
           </div>
         </div>
@@ -137,7 +123,7 @@ export default function EuropeExplorerPage() {
       {/* Destination Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {filteredDestinations.map((dest) => {
-          const required = dest.minimumSavingsINR;
+          const required = dest.minimumSavingsEUR;
           const eligibility = checkTravelEligibility(verifiedSavings, required);
           const isUnlocked = eligibility.unlocked;
 
@@ -185,7 +171,7 @@ export default function EuropeExplorerPage() {
                       Locked Destination
                     </span>
                     <span className="font-mono-data text-[11px] text-slate-300">
-                      Save {formatINR(eligibility.remaining)} more in LedgerWise
+                      Save {formatCurrency(eligibility.remaining)} more in LedgerWise
                     </span>
                   </motion.div>
                 )}
@@ -198,8 +184,8 @@ export default function EuropeExplorerPage() {
                       <Unlock className="w-3 h-3" /> Unlocked
                     </Badge>
                   ) : (
-                    <Badge variant="secondary" className="bg-slate-900/80 text-amber-400 border border-amber-400/30 font-mono-data">
-                      Requires {formatINR(dest.minimumSavingsINR)}
+                    <Badge variant="secondary" className="bg-slate-900/80 text-amber-400 border border-amber-400/30 font-mono-data text-[11px]">
+                      Requires {formatCurrency(dest.minimumSavingsEUR)}
                     </Badge>
                   )}
                 </div>
@@ -213,7 +199,7 @@ export default function EuropeExplorerPage() {
                     <span className="text-xs text-ink-600">{dest.country}</span>
                   </div>
                   <p className="text-[11px] text-ink-600 mt-1">
-                    Est. Daily Cost: <span className="font-mono-data font-semibold text-ink-900">{formatEUR(dest.estimatedDailyCostEUR)}</span>
+                    Est. Daily Cost: <span className="font-mono-data font-semibold text-ink-900">{formatCurrency(dest.estimatedDailyCostEUR)}</span>
                   </p>
                 </div>
 
@@ -231,7 +217,7 @@ export default function EuropeExplorerPage() {
                 {/* Budget for Selected Duration */}
                 <div className="p-2.5 rounded-xl bg-surface-2 text-xs flex justify-between items-center">
                   <span className="text-ink-600">{durationMonths}M Est. Budget:</span>
-                  <span className="font-mono-data font-bold text-ink-900">{formatINR(currentBudget)}</span>
+                  <span className="font-mono-data font-bold text-ink-900">{formatCurrency(currentBudget)}</span>
                 </div>
 
                 {/* CTA */}
@@ -249,7 +235,7 @@ export default function EuropeExplorerPage() {
                     disabled
                     className="w-full text-xs text-ink-400 cursor-not-allowed mt-2 font-mono-data"
                   >
-                    Locked ({formatINR(eligibility.remaining)} Left)
+                    Locked ({formatCurrency(eligibility.remaining)} Left)
                   </Button>
                 )}
               </CardContent>
@@ -260,4 +246,3 @@ export default function EuropeExplorerPage() {
     </div>
   );
 }
-
