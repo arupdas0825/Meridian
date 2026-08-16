@@ -60,6 +60,12 @@ export const LiquidLoading = () => {
     return () => clearInterval(interval);
   }, []);
 
+  if (!mounted) {
+    return (
+      <div className="flex items-end space-x-3 sm:space-x-4 p-4 sm:p-8 justify-center min-h-[140px]" />
+    );
+  }
+
   return (
     <div className="flex items-end space-x-3 sm:space-x-4 p-4 sm:p-8 justify-center min-h-[140px]">
       {heights.map((height, index) => {
@@ -108,10 +114,9 @@ export const LiquidLoading = () => {
 
               {/* Liquid wave effect */}
               <div
-                className="absolute inset-0 rounded-full"
+                className="absolute inset-0 rounded-full bg-gradient-to-t from-white/30 via-white/10 to-transparent"
                 style={{
                   transform: `translateY(${Math.sin(time * 2 + index * 0.5) * 2}px)`,
-                  background: `linear-gradient(0deg, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0.1) 50%, transparent 100%)`,
                 }}
               />
 

@@ -6,10 +6,11 @@ import Image from 'next/image';
 import { LiquidLoading } from '@/shared/ui/LiquidLoading';
 
 export function SplashScreen({ children }) {
+  const [mounted, setMounted] = useState(false);
   const [showSplash, setShowSplash] = useState(true);
 
   useEffect(() => {
-    // Show on page refresh / initial load for a smooth fluid transition
+    setMounted(true);
     const timer = setTimeout(() => {
       setShowSplash(false);
     }, 1600);
@@ -20,7 +21,7 @@ export function SplashScreen({ children }) {
   return (
     <>
       <AnimatePresence>
-        {showSplash && (
+        {mounted && showSplash && (
           <motion.div
             key="liquid-splash"
             initial={{ opacity: 1 }}
