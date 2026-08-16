@@ -93,13 +93,13 @@ export function Sidebar() {
 
       {/* Brand Header with subtle gradient underline seam */}
       <div className="relative p-4 border-b border-line flex items-center justify-between">
-        <Link href="/dashboard" className="flex items-center gap-2.5">
+        <Link href="/" className="flex items-center gap-2.5 group" title="Back to Landing Page">
           <Image
             src="/logo.png"
             alt="Meridian Logo"
             width={32}
             height={32}
-            className="w-8 h-8 object-contain shrink-0"
+            className="w-8 h-8 object-contain shrink-0 group-hover:scale-105 transition-transform"
           />
           <div>
             <h1 className="font-display font-bold text-base leading-tight tracking-tight text-ink-900">Meridian</h1>
