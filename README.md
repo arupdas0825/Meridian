@@ -18,8 +18,13 @@ A single login. Three modules. One honest answer: *based on what I've actually s
 
 [Overview](#-overview) · [Modules](#-modules) · [Tech Stack](#%EF%B8%8F-tech-stack) · [Design System](#-design-system) · [Getting Started](#-getting-started) · [Project Structure](#-project-structure) · [Roadmap](#-roadmap) · [License](#-license)
 
-</div>
+<br />
 
+<video src="./public/media/atlas-showcase.mp4" width="100%" controls autoplay loop muted playsinline poster="./public/media/atlas%20showcase-poster.jpg">
+  <a href="./public/media/atlas-showcase.mp4">▶️ Watch the Meridian & Atlas Showcase Video</a>
+</video>
+
+</div>
 
 ---
 
