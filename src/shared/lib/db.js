@@ -18,4 +18,8 @@ db.version(1).stores({
   app_meta: '&key',                    // key/value: displayName, currencyPref, notificationsEnabled...
 });
 
+db.version(2).stores({
+  lw_budgets: '&yyyyMm, totalBudget, setAt',
+});
+
 export default db;

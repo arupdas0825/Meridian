@@ -3,20 +3,17 @@
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
+import { LiquidLoading } from '@/shared/ui/LiquidLoading';
 
 export function SplashScreen({ children }) {
   const [showSplash, setShowSplash] = useState(true);
 
   useEffect(() => {
-    const seen = sessionStorage.getItem('meridian_splash_seen');
-    if (seen) {
-      setShowSplash(false);
-      return;
-    }
+    // Show on page refresh / initial load for a smooth fluid transition
     const timer = setTimeout(() => {
-      sessionStorage.setItem('meridian_splash_seen', '1');
       setShowSplash(false);
-    }, 1800);
+    }, 1600);
+
     return () => clearTimeout(timer);
   }, []);
 
@@ -25,53 +22,51 @@ export function SplashScreen({ children }) {
       <AnimatePresence>
         {showSplash && (
           <motion.div
-            key="splash"
+            key="liquid-splash"
             initial={{ opacity: 1 }}
             exit={{ opacity: 0, transition: { duration: 0.5, ease: 'easeInOut' } }}
-            className="fixed inset-0 z-[999] flex flex-col items-center justify-center bg-surface-0"
+            className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-surface-0 overflow-hidden"
           >
-            {/* Ambient glow, matches Meridian gradient identity */}
+            {/* Ambient glow in background matching Meridian theme */}
             <div
-              className="absolute w-72 h-72 rounded-full blur-3xl opacity-30"
+              className="absolute w-96 h-96 rounded-full blur-3xl opacity-20 pointer-events-none"
               style={{ background: 'var(--meridian-gradient)' }}
             />
 
             <motion.div
-              initial={{ scale: 0.8, opacity: 0 }}
+              initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-              className="relative z-10 flex flex-col items-center gap-4"
+              transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+              className="relative z-10 flex flex-col items-center gap-2 max-w-md w-full px-4"
             >
-              <div className="w-24 h-24 rounded-[28px] overflow-hidden shadow-e3 ring-1 ring-white/10">
-                <Image src="/icon.png" alt="Meridian" width={96} height={96} priority className="w-full h-full object-cover" />
+              {/* Brand icon and name */}
+              <div className="flex items-center gap-2.5 mb-2">
+                <div className="w-9 h-9 rounded-xl overflow-hidden shadow-e2 ring-1 ring-line">
+                  <Image
+                    src="/icon.png"
+                    alt="Meridian"
+                    width={36}
+                    height={36}
+                    priority
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <span className="font-display font-bold text-xl tracking-tight text-ink-900">
+                  Meridian
+                </span>
               </div>
 
-              <motion.h1
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.25, duration: 0.5 }}
-                className="font-display text-2xl font-extrabold tracking-tight text-ink-900"
-              >
-                Meridian
-              </motion.h1>
+              {/* Liquid Loader Animation */}
+              <LiquidLoading />
 
               <motion.p
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.4, duration: 0.5 }}
-                className="text-xs text-ink-600 tracking-wide"
+                initial={{ opacity: 0, y: 4 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3, duration: 0.4 }}
+                className="text-xs font-medium text-ink-600 tracking-wide mt-2"
               >
                 Plan Smart. Save More. Explore Europe.
               </motion.p>
-
-              {/* Loading indicator — thin animated seam, echoes the meridian-line motif */}
-              <motion.div
-                initial={{ width: 0, opacity: 0 }}
-                animate={{ width: 120, opacity: 1 }}
-                transition={{ delay: 0.5, duration: 1, ease: 'easeInOut' }}
-                className="h-[2px] rounded-full overflow-hidden mt-2"
-                style={{ background: 'var(--meridian-gradient)' }}
-              />
             </motion.div>
           </motion.div>
         )}

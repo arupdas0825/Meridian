@@ -80,3 +80,46 @@
   .font-mono-data { font-family: var(--font-jetbrains-mono), monospace; font-variant-numeric: tabular-nums; }
 }
 
+/* ===== React DayPicker Customization ===== */
+.rdp-root {
+  --rdp-accent-color: hsl(var(--primary));
+  --rdp-accent-background-color: hsl(var(--primary) / 0.15);
+  --rdp-day-height: 34px;
+  --rdp-day-width: 34px;
+  color: var(--ink-900);
+  margin: 0;
+}
+.rdp-day {
+  color: var(--ink-900);
+  border-radius: 8px;
+}
+.rdp-day_button {
+  border-radius: 8px;
+  color: var(--ink-900);
+}
+.rdp-selected .rdp-day_button,
+.rdp-day_button.rdp-selected,
+.rdp-selected {
+  background-color: hsl(var(--primary)) !important;
+  color: #ffffff !important;
+  font-weight: 600;
+}
+.rdp-today:not(.rdp-selected) {
+  border: 1px solid hsl(var(--primary) / 0.4);
+  color: hsl(var(--primary));
+}
+.rdp-weekday {
+  color: var(--ink-400);
+  font-size: 0.75rem;
+}
+.rdp-caption_label,
+.rdp-month_caption {
+  font-weight: 600;
+  color: var(--ink-900);
+}
+.rdp-button_previous,
+.rdp-button_next,
+.rdp-nav_button {
+  color: var(--ink-600);
+}
+
