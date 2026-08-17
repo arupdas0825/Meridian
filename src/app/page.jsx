@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { ArrowRight, ShieldCheck, CheckSquare, Wallet, Compass, Lock, Smartphone, Sparkles } from 'lucide-react';
+import { ArrowRight, CheckSquare, Wallet, Compass, Lock, Smartphone, Sparkles } from 'lucide-react';
 import { AmbientVideo } from '@/shared/ui/AmbientVideo';
 
 const fadeUp = {
@@ -37,74 +37,38 @@ export default function LandingPage() {
       </nav>
 
       {/* HERO — viewport height with cinematic ambient video integration */}
-      <section className="relative min-h-screen flex flex-col items-center justify-center text-center px-6 pt-20 overflow-hidden">
-        {/* Layer 0 & 1: Cinematic Ambient Video + Radial Readability Mask */}
+      <section className="relative h-screen min-h-[640px] flex flex-col justify-end items-center text-center px-6 pb-12 overflow-hidden">
+        {/* Layer 0 & 1: Full-Screen Cinematic Video + Subtle Readability/Blend Layer */}
         <AmbientVideo />
 
-        {/* Layer 2: Hero Content */}
-        <div className="relative z-10 max-w-4xl mx-auto flex flex-col items-center">
+        {/* Layer 2: ONLY CTA + Scroll indicator in balanced lower-center composition */}
+        <div className="relative z-10 flex flex-col items-center gap-6 mb-2">
           <motion.div
-            initial="hidden"
-            animate="visible"
-            variants={fadeUp}
-            custom={0}
-            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-line bg-surface-1 text-xs font-medium mb-6 shadow-e1"
-          >
-            <ShieldCheck className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" /> No login. No tracking. 100% local-first.
-          </motion.div>
-
-          <motion.h1
-            initial="hidden"
-            animate="visible"
-            variants={fadeUp}
-            custom={1}
-            className="text-4xl md:text-6xl font-extrabold tracking-tight max-w-3xl leading-[1.1] font-display"
-          >
-            Your Productivity, Money &amp; European Journeys in{' '}
-            <span style={{ backgroundImage: 'var(--meridian-gradient)', WebkitBackgroundClip: 'text', color: 'transparent' }}>
-              One Unified Platform
-            </span>
-          </motion.h1>
-
-          <motion.p
-            initial="hidden"
-            animate="visible"
-            variants={fadeUp}
-            custom={2}
-            className="mt-6 max-w-xl text-ink-600 text-base md:text-lg leading-relaxed"
-          >
-            TaskForge manages your goals. LedgerWise secures your budget. Atlas turns verified
-            savings into an honest map of unlockable European destinations.
-          </motion.p>
-
-          <motion.div
-            initial="hidden"
-            animate="visible"
-            variants={fadeUp}
-            custom={3}
-            className="mt-8 flex items-center justify-center gap-3"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
           >
             <Link href="/dashboard">
               <motion.span
-                whileHover={{ scale: 1.03 }}
-                whileTap={{ scale: 0.97 }}
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-full font-semibold text-white shadow-e2 cursor-pointer"
+                whileHover={{ scale: 1.04 }}
+                whileTap={{ scale: 0.96 }}
+                className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full font-semibold text-white shadow-e2 hover:shadow-e3 transition-all cursor-pointer text-sm md:text-base backdrop-blur-xs"
                 style={{ background: 'var(--meridian-gradient)' }}
               >
                 Start Planning Free <ArrowRight className="w-4 h-4" />
               </motion.span>
             </Link>
           </motion.div>
-        </div>
 
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1, y: [0, 8, 0] }}
-          transition={{ opacity: { delay: 1 }, y: { repeat: Infinity, duration: 1.6 } }}
-          className="absolute bottom-8 z-10 text-ink-600 text-xs font-medium flex flex-col items-center gap-1 pointer-events-none"
-        >
-          Scroll to explore ↓
-        </motion.div>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1, y: [0, 6, 0] }}
+            transition={{ opacity: { delay: 0.8, duration: 0.6 }, y: { repeat: Infinity, duration: 2, ease: "easeInOut" } }}
+            className="text-ink-600 dark:text-ink-400 text-xs font-medium flex flex-col items-center gap-1 pointer-events-none select-none"
+          >
+            Scroll to explore ↓
+          </motion.div>
+        </div>
       </section>
 
       {/* MODULE SHOWCASE — full, never cut off */}

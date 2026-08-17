@@ -3,8 +3,7 @@
 import { useEffect, useRef } from 'react';
 
 export function AmbientVideo({
-  src = '/media/atlas%20showcase.mp4',
-  poster = '/media/atlas showcase-poster.jpg',
+  src = '/Media/meridian%20video.mp4',
   className = '',
 }) {
   const videoRef = useRef(null);
@@ -13,16 +12,48 @@ export function AmbientVideo({
     const video = videoRef.current;
     if (!video) return;
 
-    // Respect reduced motion preference
-    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-    if (mediaQuery.matches) return;
+    // Set muted DOM properties directly for cross-browser autoplay compliance
+    video.muted = true;
+    video.defaultMuted = true;
+    video.playsInline = true;
+    video.loop = true;
 
-    const playPromise = video.play();
-    if (playPromise !== undefined) {
-      playPromise.catch(() => {
-        // Fallback for strict browser autoplay
-      });
-    }
+    const playVideo = () => {
+      if (video.paused) {
+        const promise = video.play();
+        if (promise !== undefined) {
+          promise.catch(() => {
+            // Autoplay policy fallback
+          });
+        }
+      }
+    };
+
+    // Immediate attempt
+    playVideo();
+
+    // Event listener fallbacks when video buffer is ready
+    video.addEventListener('canplay', playVideo);
+    video.addEventListener('loadeddata', playVideo);
+    video.addEventListener('loadedmetadata', playVideo);
+
+    // Fallback on first user interaction if browser restricted unprompted playback
+    const handleFirstInteraction = () => {
+      playVideo();
+    };
+
+    window.addEventListener('click', handleFirstInteraction, { once: true });
+    window.addEventListener('touchstart', handleFirstInteraction, { once: true });
+    window.addEventListener('scroll', handleFirstInteraction, { once: true });
+
+    return () => {
+      video.removeEventListener('canplay', playVideo);
+      video.removeEventListener('loadeddata', playVideo);
+      video.removeEventListener('loadedmetadata', playVideo);
+      window.removeEventListener('click', handleFirstInteraction);
+      window.removeEventListener('touchstart', handleFirstInteraction);
+      window.removeEventListener('scroll', handleFirstInteraction);
+    };
   }, []);
 
   return (
@@ -30,7 +61,7 @@ export function AmbientVideo({
       className={`absolute inset-0 overflow-hidden pointer-events-none select-none z-0 ${className}`}
       aria-hidden="true"
     >
-      {/* Video Background Layer - Clear Visibility */}
+      {/* Video Background Layer - High Clarity Full-Bleed (z-index: 0) */}
       <video
         ref={videoRef}
         autoPlay
@@ -38,19 +69,22 @@ export function AmbientVideo({
         loop
         playsInline
         preload="auto"
-        poster={poster}
-        className="absolute inset-0 w-full h-full object-cover object-center opacity-50 dark:opacity-60 transition-opacity duration-700"
+        className="absolute inset-0 w-full h-full object-cover object-center pointer-events-none opacity-90 transition-opacity duration-500"
+        style={{
+          mixBlendMode: 'normal',
+        }}
       >
         <source src={src} type="video/mp4" />
-        <source src="/media/atlas-showcase.mp4" type="video/mp4" />
+        <source src="/media/meridian%20video.mp4" type="video/mp4" />
+        <source src="/media/meridian video.mp4" type="video/mp4" />
       </video>
 
-      {/* Subtle Readability Safe Zone - Light gradient that keeps center text readable while preserving full video visibility */}
+      {/* Subtle bottom edge feather layer (z-index: 1) - Preserves video clarity across the hero */}
       <div
         className="absolute inset-0 pointer-events-none z-[1]"
         style={{
           background:
-            'radial-gradient(ellipse at center, color-mix(in srgb, var(--surface-0) 30%, transparent) 0%, color-mix(in srgb, var(--surface-0) 12%, transparent) 55%, transparent 100%)',
+            'linear-gradient(to bottom, transparent 0%, transparent 75%, color-mix(in srgb, var(--surface-0) 50%, transparent) 90%, var(--surface-0) 100%)',
         }}
       />
     </div>
@@ -58,3 +92,5 @@ export function AmbientVideo({
 }
 
 export default AmbientVideo;
+
+
